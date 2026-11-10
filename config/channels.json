@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "channels": [
+    {
+      "id": "smart_money",
+      "name_ar": "كواليس المال",
+      "name_en": "Smart Money",
+      "topic_scope": [
+        "الثقافة المالية",
+        "الاقتصاد السلوكي",
+        "التسعير",
+        "التضخم",
+        "الخدمات المصرفية"
+      ],
+      "voice": {
+        "style": "هادئ وواثق",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "وثائقي مالي",
+        "palette": [
+          "navy",
+          "black",
+          "gold"
+        ]
+      },
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    },
+    {
+      "id": "science",
+      "name_ar": "إكسير",
+      "name_en": "Elixir",
+      "topic_scope": [
+        "الكيمياء",
+        "الفيزياء",
+        "الظواهر العلمية"
+      ],
+      "voice": {
+        "style": "استكشافي وحيوي",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "مختبر علمي",
+        "palette": [
+          "neon",
+          "lab"
+        ]
+      },
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    },
+    {
+      "id": "mind_maze",
+      "name_ar": "متاهة العقل",
+      "name_en": "Mind Maze",
+      "topic_scope": [
+        "الألغاز الذهنية",
+        "الخدع البصرية",
+        "الإدراك"
+      ],
+      "voice": {
+        "style": "غامض ومشوق",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "خدع بصرية عالية الوضوح"
+      },
+      "script": {
+        "target_words_min": 25,
+        "target_words_max": 35
+      },
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    },
+    {
+      "id": "wildlife",
+      "name_ar": "غريزة",
+      "name_en": "Instinct",
+      "topic_scope": [
+        "الحياة البرية",
+        "سلوك الحيوانات",
+        "التكيف والبقاء"
+      ],
+      "voice": {
+        "style": "وثائقي درامي",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "وثائقي طبيعة"
+      },
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    },
+    {
+      "id": "true_mysteries",
+      "name_ar": "بصمة مجهولة",
+      "name_en": "Unknown Trace",
+      "topic_scope": [
+        "قضايا موثقة",
+        "ألغاز حقيقية",
+        "أدلة وتحقيقات منشورة"
+      ],
+      "voice": {
+        "style": "سينمائي داكن",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "تحقيق وثائقي"
+      },
+      "editorial_rules": [
+        "التحقق من المصادر",
+        "عدم اتهام أشخاص دون أدلة موثوقة",
+        "تجنب استغلال الضحايا"
+      ],
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    },
+    {
+      "id": "industry",
+      "name_ar": "سر الصناعة",
+      "name_en": "Inside Industry",
+      "topic_scope": [
+        "عمليات التصنيع",
+        "سلاسل الإنتاج",
+        "التقنيات الصناعية"
+      ],
+      "voice": {
+        "style": "هادئ وواضح",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "وثائقي صناعي مع إبراز أصوات الآلات"
+      },
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    },
+    {
+      "id": "dark_history",
+      "name_ar": "تاريخ بلا رتوش",
+      "name_en": "Unfiltered History",
+      "topic_scope": [
+        "وقائع تاريخية موثقة",
+        "غرائب التاريخ",
+        "السياقات التاريخية"
+      ],
+      "voice": {
+        "style": "مسرحي مع سخرية منضبطة",
+        "language": "ar"
+      },
+      "visual": {
+        "style": "وثائقي تاريخي"
+      },
+      "editorial_rules": [
+        "تجنب التحريض الطائفي والعنصري",
+        "إسناد الوقائع إلى مصادر"
+      ],
+      "shorts": {
+        "min_seconds": 45,
+        "max_seconds": 58
+      },
+      "enabled": true
+    }
+  ]
+}
