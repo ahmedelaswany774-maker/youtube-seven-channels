@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "format": "youtube_shorts",
+  "video": {
+    "min_seconds": 45,
+    "max_seconds": 58,
+    "scene_change_seconds_min": 2.2,
+    "scene_change_seconds_max": 2.8,
+    "subtitle_words_min": 1,
+    "subtitle_words_max": 3
+  },
+  "audio": {
+    "voice_db": 0,
+    "sfx_db": -18,
+    "background_music_db": -24
+  },
+  "quality_gates": {
+    "require_source_review": true,
+    "require_rights_check": true,
+    "require_original_script": true,
+    "require_duplicate_check": true,
+    "require_render_qc": true,
+    "block_if_duration_outside_range": true
+  },
+  "publishing": {
+    "enabled": false,
+    "visibility": "private",
+    "require_manual_enable": true,
+    "prevent_duplicate_uploads": true
+  },
+  "schedule": {
+    "timezone": "Africa/Cairo",
+    "daily_target_per_channel": 3
+  },
+  "storage": {
+    "ideas_dir": "data/ideas",
+    "published_registry": "data/published/videos.json",
+    "assets_dir": "assets",
+    "renders_dir": "renders"
+  }
+}
