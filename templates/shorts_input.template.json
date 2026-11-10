@@ -1,0 +1,25 @@
+{
+  "title": "عنوان الحلقة",
+  "hook": "جملة افتتاحية تشد الانتباه",
+  "description": "وصف مختصر",
+  "duration_seconds": 50,
+  "editorial_status": "pending",
+  "rights_status": "pending",
+  "original_script": true,
+  "sources": [
+    {
+      "title": "اسم المصدر",
+      "url": "https://example.org/source",
+      "review_status": "pending",
+      "notes": "ما الذي يثبته المصدر؟"
+    }
+  ],
+  "scenes": [
+    {
+      "duration_seconds": 2.5,
+      "narration": "نص التعليق الصوتي لهذا المشهد.",
+      "subtitle": "معلومة مدهشة",
+      "visual_prompt": "وصف اللقطة المطلوبة"
+    }
+  ]
+}
