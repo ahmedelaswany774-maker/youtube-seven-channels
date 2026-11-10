@@ -28,10 +28,6 @@
     "require_manual_enable": true,
     "prevent_duplicate_uploads": true
   },
-  "schedule": {
-    "timezone": "Africa/Cairo",
-    "daily_target_per_channel": 3
-  },
   "storage": {
     "ideas_dir": "data/ideas",
     "published_registry": "data/published/videos.json",
