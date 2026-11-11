@@ -296,8 +296,8 @@ def main() -> int:
     if gh_output:
         meta_path = OUTPUT_DIR / (output.stem + ".json")
         with open(gh_output, "a", encoding="utf-8") as gh:
-            gh.write(f"video=kombo-city-factory/output/{output.name}\\n")
-            gh.write(f"metadata=kombo-city-factory/output/{meta_path.name}\\n")
+            gh.write(f"video=kombo-city-factory/output/{output.name}\n")
+            gh.write(f"metadata=kombo-city-factory/output/{meta_path.name}\n")
     print(f"نجاح: {output} ({output.stat().st_size} bytes)")
     print("العنوان:", data["title"])
     return 0
