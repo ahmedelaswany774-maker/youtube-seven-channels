@@ -27,7 +27,10 @@ PROMPT_FILE = ROOT / "prompts" / "system_prompt.txt"
 OUTPUT_DIR = ROOT / "output"
 WORK_DIR = ROOT / ".work"
 WIDTH, HEIGHT, FPS, TARGET_SECONDS = 1080, 1920, 30, 45
-VOICE = os.getenv("EDGE_TTS_VOICE", "ar-EG-SalmaNeural")
+FISH_API_KEY = os.getenv("FISH_API_KEY", "").strip()
+FISH_VOICE_ID = os.getenv("FISH_VOICE_ID", "").strip()
+FISH_TTS_URL = "https://api.fish.audio/v1/tts"
+FISH_MODEL = "s2.1-pro-free"
 MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 IMAGE_BASE = "https://image.pollinations.ai/prompt/"
 SESSION = requests.Session()
@@ -145,10 +148,63 @@ def generate_image(prompt: str, destination: Path, scene: int) -> None:
     fallback_image(destination, scene)
 
 
-async def make_tts(text: str, output: Path) -> None:
-    import edge_tts
-    communicate = edge_tts.Communicate(text, VOICE, rate="+0%", volume="+0%")
-    await communicate.save(str(output))
+def make_tts(text: str, output: Path) -> None:
+    """Generate narration with the configured Fish Audio cloned voice; never silently fall back."""
+    if not FISH_API_KEY:
+        raise RuntimeError("FISH_API_KEY غير مضبوط في GitHub Secrets.")
+    if not FISH_VOICE_ID:
+        raise RuntimeError("FISH_VOICE_ID غير مضبوط في GitHub Secrets.")
+
+    chunks = []
+    sentences = re.split(r"(?<=[.!؟?])\\s+|\\n+", text.strip())
+    current = ""
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        if len(current) + len(sentence) + 1 > 1400 and current:
+            chunks.append(current)
+            current = sentence
+        else:
+            current = (current + " " + sentence).strip()
+    if current:
+        chunks.append(current)
+    if not chunks:
+        raise ValueError("نص التعليق الصوتي فارغ.")
+
+    headers = {
+        "Authorization": f"Bearer {FISH_API_KEY}",
+        "Content-Type": "application/json",
+        "model": FISH_MODEL,
+    }
+    generated = []
+    try:
+        for index, chunk in enumerate(chunks, start=1):
+            response = SESSION.post(
+                FISH_TTS_URL, headers=headers,
+                json={"text": chunk, "reference_id": FISH_VOICE_ID, "format": "mp3"},
+                timeout=180,
+            )
+            response.raise_for_status()
+            part = WORK_DIR / f"fish_voice_{index:03d}.mp3"
+            part.write_bytes(response.content)
+            if part.stat().st_size < 1000:
+                raise RuntimeError(f"Fish Audio returned invalid audio chunk {index}.")
+            generated.append(part)
+            print(f"Fish Audio: الجزء {index}/{len(chunks)}")
+        if len(generated) == 1:
+            shutil.copy2(generated[0], output)
+        else:
+            concat = WORK_DIR / "fish_voice_concat.txt"
+            concat.write_text("".join(f"file '{p.resolve().as_posix()}'\\n" for p in generated), encoding="utf-8")
+            run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat),
+                 "-c:a", "libmp3lame", "-q:a", "2", str(output)])
+        if not output.exists() or output.stat().st_size < 1000:
+            raise RuntimeError("تعذر إنشاء ملف الصوت النهائي من Fish Audio.")
+    finally:
+        for part in generated:
+            part.unlink(missing_ok=True)
+        (WORK_DIR / "fish_voice_concat.txt").unlink(missing_ok=True)
 
 
 def media_duration(path: Path) -> float:
@@ -213,7 +269,7 @@ def build_video(images: list[Path], audio: Path, script: str, captions: Path, ou
     subtitle_path = captions.as_posix().replace(":", r"\:")
     font_dir = "/usr/share/fonts/truetype"
     vf_sub = (f"subtitles='{subtitle_path}':fontsdir='{font_dir}':"
-              "force_style='FontName=Noto Sans Arabic,FontSize=19,Bold=1,"
+              "force_style='FontName=DejaVu Sans,FontSize=19,Bold=1,"
               "PrimaryColour=&H0000D7FF,OutlineColour=&H00101010,BorderStyle=1,"
               "Outline=3,Shadow=1,Alignment=2,MarginV=230'")
     music = ROOT / "assets" / "music.mp3"
@@ -277,9 +333,8 @@ def main() -> int:
         image_path = WORK_DIR / f"image_{i}.jpg"
         generate_image(data[f"image{i}"], image_path, i)
         images.append(image_path)
-    import asyncio
     audio = WORK_DIR / "audio.mp3"
-    asyncio.run(make_tts(data["script"], audio))
+    make_tts(data["script"], audio)
     captions = WORK_DIR / "captions.srt"
     create_captions(data["script"], data["srt_parts"], TARGET_SECONDS, captions)
     stamp = datetime.now(ZoneInfo("Africa/Cairo")).strftime("%Y%m%d_%H%M%S")
@@ -290,7 +345,7 @@ def main() -> int:
     (OUTPUT_DIR / (output.stem + ".json")).write_text(json.dumps({
         "idea_id": idea["id"], "idea": idea["idea"], "title": data["title"],
         "caption": data["caption"], "script": data["script"], "duration_seconds": TARGET_SECONDS,
-        "voice": VOICE, "image_provider": "Pollinations with local fallback"
+        "voice": "Fish Audio cloned voice", "image_provider": "Pollinations with local fallback"
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     gh_output = os.getenv("GITHUB_OUTPUT")
     if gh_output:
