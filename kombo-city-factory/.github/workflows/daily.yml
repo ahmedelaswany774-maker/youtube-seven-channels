@@ -43,6 +43,9 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
+      - name: Validate Python syntax
+        run: python -m py_compile main.py
+
       - name: Generate and validate one video
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -67,7 +70,7 @@ jobs:
           retention-days: 7
 
       - name: Commit generated video and used-idea ledger
-        if: success() && github.event_name != 'schedule' || success()
+        if: success()
         run: |
           cd ..
           git config user.name "github-actions[bot]"
