@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build-one-short:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     defaults:
       run:
@@ -34,11 +34,15 @@ jobs:
           cache: pip
           cache-dependency-path: kombo-city-factory/requirements.txt
 
-      - name: Install FFmpeg and Arabic fonts
+      - name: Verify runner media tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra
-          fc-cache -f
+          set -e
+          command -v ffmpeg
+          command -v ffprobe
+          ffmpeg -version | head -n 1
+          if command -v fc-match >/dev/null 2>&1; then
+            fc-match "DejaVu Sans"
+          fi
 
       - name: Install Python dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
@@ -51,12 +55,12 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.5-flash
-          EDGE_TTS_VOICE: ar-EG-SalmaNeural
+          FISH_API_KEY: ${{ secrets.FISH_API_KEY }}
+          FISH_VOICE_ID: ${{ secrets.FISH_VOICE_ID }}
         run: |
-          if [ -z "$GEMINI_API_KEY" ]; then
-            echo "::error::Add GEMINI_API_KEY in Settings > Secrets and variables > Actions."
-            exit 1
-          fi
+          test -n "$GEMINI_API_KEY" || { echo "::error::Add GEMINI_API_KEY in Actions secrets."; exit 1; }
+          test -n "$FISH_API_KEY" || { echo "::error::Add FISH_API_KEY in Actions secrets."; exit 1; }
+          test -n "$FISH_VOICE_ID" || { echo "::error::Add FISH_VOICE_ID in Actions secrets."; exit 1; }
           python main.py --one ${{ github.event_name == 'schedule' && '--scheduled-guard' || '' }}
 
       - name: Upload video artifact
