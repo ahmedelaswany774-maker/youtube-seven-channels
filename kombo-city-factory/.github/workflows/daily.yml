@@ -47,6 +47,7 @@ jobs:
         run: python -m py_compile main.py
 
       - name: Generate and validate one video
+        id: build
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.5-flash
@@ -64,8 +65,8 @@ jobs:
         with:
           name: kombo-city-video-${{ github.run_number }}
           path: |
-            kombo-city-factory/output/*.mp4
-            kombo-city-factory/output/*.json
+            ${{ steps.build.outputs.video }}
+            ${{ steps.build.outputs.metadata }}
           if-no-files-found: error
           retention-days: 7
 
