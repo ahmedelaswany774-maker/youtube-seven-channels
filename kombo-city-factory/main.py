@@ -292,6 +292,12 @@ def main() -> int:
         "caption": data["caption"], "script": data["script"], "duration_seconds": TARGET_SECONDS,
         "voice": VOICE, "image_provider": "Pollinations with local fallback"
     }, ensure_ascii=False, indent=2), encoding="utf-8")
+    gh_output = os.getenv("GITHUB_OUTPUT")
+    if gh_output:
+        meta_path = OUTPUT_DIR / (output.stem + ".json")
+        with open(gh_output, "a", encoding="utf-8") as gh:
+            gh.write(f"video=kombo-city-factory/output/{output.name}\\n")
+            gh.write(f"metadata=kombo-city-factory/output/{meta_path.name}\\n")
     print(f"نجاح: {output} ({output.stat().st_size} bytes)")
     print("العنوان:", data["title"])
     return 0
