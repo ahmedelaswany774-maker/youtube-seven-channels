@@ -156,7 +156,7 @@ def make_tts(text: str, output: Path) -> None:
         raise RuntimeError("FISH_VOICE_ID غير مضبوط في GitHub Secrets.")
 
     chunks = []
-    sentences = re.split(r"(?<=[.!؟?])\\s+|\\n+", text.strip())
+    sentences = re.split(r"(?<=[.!؟?])\s+|\n+", text.strip())
     current = ""
     for sentence in sentences:
         sentence = sentence.strip()
@@ -196,7 +196,7 @@ def make_tts(text: str, output: Path) -> None:
             shutil.copy2(generated[0], output)
         else:
             concat = WORK_DIR / "fish_voice_concat.txt"
-            concat.write_text("".join(f"file '{p.resolve().as_posix()}'\\n" for p in generated), encoding="utf-8")
+            concat.write_text("".join(f"file '{p.resolve().as_posix()}'\n" for p in generated), encoding="utf-8")
             run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat),
                  "-c:a", "libmp3lame", "-q:a", "2", str(output)])
         if not output.exists() or output.stat().st_size < 1000:
