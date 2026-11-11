@@ -1,0 +1,81 @@
+name: Kombo City Factory
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Cairo is UTC+2 in winter and UTC+3 in summer.
+    # Run at both candidate UTC hours; Python proceeds only at 08:00 Africa/Cairo.
+    - cron: "0 5,6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kombo-city-factory-daily
+  cancel-in-progress: false
+
+jobs:
+  build-one-short:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: kombo-city-factory
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: kombo-city-factory/requirements.txt
+
+      - name: Install FFmpeg and Arabic fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-extra fonts-noto-ui-core fonts-noto-ui-extra
+          fc-cache -f
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Generate and validate one video
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-2.5-flash
+          EDGE_TTS_VOICE: ar-EG-SalmaNeural
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::error::Add GEMINI_API_KEY in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          python main.py --one ${{ github.event_name == 'schedule' && '--scheduled-guard' || '' }}
+
+      - name: Upload video artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kombo-city-video-${{ github.run_number }}
+          path: |
+            kombo-city-factory/output/*.mp4
+            kombo-city-factory/output/*.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit generated video and used-idea ledger
+        if: success() && github.event_name != 'schedule' || success()
+        run: |
+          cd ..
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kombo-city-factory/used.txt kombo-city-factory/output/
+          if git diff --cached --quiet; then
+            echo "No generated output to commit."
+          else
+            git commit -m "chore(kombo): generate daily educational short"
+            git push
+          fi
