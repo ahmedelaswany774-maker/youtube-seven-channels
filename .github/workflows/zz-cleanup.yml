@@ -1,0 +1,23 @@
+name: zz-cleanup-runs
+on: workflow_dispatch
+permissions:
+  actions: write
+  contents: read
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: delete old runs (keep newest 3)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ME: ${{ github.run_id }}
+        run: |
+          gh api --paginate "repos/$REPO/actions/runs?per_page=100&status=completed" --jq '.workflow_runs[].id' > ids.txt
+          grep -v "^$ME$" ids.txt | tail -n +4 > del.txt || true
+          wc -l del.txt
+          n=0
+          while read -r id; do
+            gh api -X DELETE "repos/$REPO/actions/runs/$id" >/dev/null 2>&1 && n=$((n+1))
+          done < del.txt
+          echo "deleted $n runs"
